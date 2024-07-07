@@ -6,6 +6,6 @@ import (
 
 type Workspace struct {
 	gorm.Model
-	Name        string `gorm:"unique;type:varchar(100)"`
+	Name        string `gorm:"type:varchar(100);not null"`
 	Description string `gorm:"type:varchar(100)"`
 }

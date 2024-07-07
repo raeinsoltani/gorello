@@ -13,15 +13,15 @@ func NewUserWorkspaceRoleRepo(db *gorm.DB) *UserWorkspaceRole {
 	return &UserWorkspaceRole{db: db}
 }
 
-func (repo *UserWorkspaceRole) Create(UserWorkspaceRole *models.UserWorkspaceRole) error {
-	result := repo.db.Create(UserWorkspaceRole)
+func (repo *UserWorkspaceRole) Create(userWorkspaceRole *models.UserWorkspaceRole) error {
+	result := repo.db.Create(userWorkspaceRole)
 	return result.Error
 }
 
 func (repo *UserWorkspaceRole) FindByID(id uint) (*models.UserWorkspaceRole, error) {
-	var UserWorkspaceRole models.UserWorkspaceRole
-	result := repo.db.First(&UserWorkspaceRole, "id = ?", id)
-	return &UserWorkspaceRole, result.Error
+	var userWorkspaceRole models.UserWorkspaceRole
+	result := repo.db.First(&userWorkspaceRole, "id = ?", id)
+	return &userWorkspaceRole, result.Error
 }
 
 func (repo *UserWorkspaceRole) FindByUserID(user_id uint) ([]*models.UserWorkspaceRole, error) {

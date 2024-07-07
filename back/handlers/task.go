@@ -17,8 +17,12 @@ type TaskHandler struct {
 	UserRepo              repository.User
 }
 
-func NewTaskHandler(taskRepo repository.Task) *TaskHandler {
-	return &TaskHandler{TaskRepo: taskRepo}
+func NewTaskHandler(taskRepo repository.Task, userWorkspaceRoleRepo repository.UserWorkspaceRole, userRepo repository.User) *TaskHandler {
+	return &TaskHandler{
+		TaskRepo:              taskRepo,
+		UserWorkspaceRoleRepo: userWorkspaceRoleRepo,
+		UserRepo:              userRepo,
+	}
 }
 
 type TaskCreateDTO struct {
@@ -30,6 +34,7 @@ type TaskCreateDTO struct {
 	Due_date       string `json:"due_date"`
 	Priority       uint   `json:"priority"`
 	Assignee_id    uint   `json:"assignee_id"`
+	Workspace_id   uint   `json:"workspace_id"`
 	Image_url      string `json:"image_url"`
 }
 
@@ -38,6 +43,10 @@ func (t *TaskCreateDTO) Validate() error {
 
 	if t.Title == "" {
 		errFields = append(errFields, "name")
+	}
+
+	if t.Workspace_id == 0 {
+		errFields = append(errFields, "workspace_id")
 	}
 
 	if len(errFields) > 0 {
@@ -50,11 +59,6 @@ func (h *TaskHandler) CreateTask(c echo.Context) error {
 	authUsername, ok := c.Get("username").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, "User not authenticated")
-	}
-
-	workspaceId, err := strconv.ParseUint(c.Param("workspaceId"), 10, 64)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	taskCreateDTO := new(TaskCreateDTO)
@@ -72,9 +76,19 @@ func (h *TaskHandler) CreateTask(c echo.Context) error {
 		Status:         taskCreateDTO.Status,
 		Estimated_time: taskCreateDTO.Estimated_time,
 		Actual_time:    taskCreateDTO.Actual_time,
+		Due_date:       taskCreateDTO.Due_date,
 		Priority:       taskCreateDTO.Priority,
+		Assignee_id:    taskCreateDTO.Assignee_id,
+		Workspace_id:   taskCreateDTO.Workspace_id,
 		Image_url:      taskCreateDTO.Image_url,
 	}
+
+	workspace_id, err := strconv.ParseUint(c.Param("workspaceId"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	task.Workspace_id = uint(workspace_id)
 
 	user, err := h.UserRepo.FindByUsername(authUsername)
 	if err != nil {
@@ -88,14 +102,14 @@ func (h *TaskHandler) CreateTask(c echo.Context) error {
 
 	found := false
 	for _, workspace := range workspaces {
-		if uint64(workspace.User_id) == workspaceId {
+		if uint64(workspace.User_id) == uint64(user.ID) {
 			found = true
 			break
 		}
 	}
 
 	if !found {
-		return c.JSON(http.StatusBadRequest, "Invalid workspace ID")
+		return c.JSON(http.StatusBadRequest, "Access denied to this workspace")
 	}
 
 	err = h.TaskRepo.Create(task)
@@ -107,12 +121,12 @@ func (h *TaskHandler) CreateTask(c echo.Context) error {
 }
 
 func (h *TaskHandler) GetTasks(c echo.Context) error {
-	workspaceId, err := strconv.ParseUint(c.Param("workspaceId"), 10, 64)
+	workspace_id, err := strconv.ParseUint(c.Param("workspaceId"), 10, 64)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	tasks, err := h.TaskRepo.FindByWorkspaceID(uint(workspaceId))
+	tasks, err := h.TaskRepo.FindByWorkspaceID(uint(workspace_id))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -121,12 +135,12 @@ func (h *TaskHandler) GetTasks(c echo.Context) error {
 }
 
 func (h *TaskHandler) GetTask(c echo.Context) error {
-	taskId, err := strconv.ParseUint(c.Param("taskId"), 10, 64)
+	task_id, err := strconv.ParseUint(c.Param("taskId"), 10, 64)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	task, err := h.TaskRepo.FindByID(uint(taskId))
+	task, err := h.TaskRepo.FindByID(uint(task_id))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -181,5 +195,5 @@ func (h *TaskHandler) DeleteTask(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.NoContent(http.StatusNoContent)
+	return c.JSON(http.StatusNoContent, fmt.Sprintf("Task with id %d deleted", taskId))
 }

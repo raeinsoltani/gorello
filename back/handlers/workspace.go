@@ -217,5 +217,5 @@ func (h *WorkspaceHandler) DeleteWorkspace(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, "Workspace record successfully")
+	return c.JSON(http.StatusOK, "Workspace deleted successfully")
 }

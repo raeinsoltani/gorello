@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
@@ -13,9 +11,9 @@ type Task struct {
 	Status         uint   `gorm:"default:0"`
 	Estimated_time string `gorm:"type:varchar(100)"`
 	Actual_time    string `gorm:"type:varchar(100)"`
-	Due_date       *time.Time
+	Due_date       string `gorm:"type:varchar(100)"`
 	Priority       uint   `gorm:"default:0"`
-	Workspace_id   uint   `gorm:"foreignKey:WorkspaceID"`
-	Assignee_id    uint   `gorm:"foreignKey:AssigneeID;optional"`
+	Workspace_id   uint   `gorm:"foreignKey:not null"`
+	Assignee_id    uint   `gorm:"foreignKey:optional"`
 	Image_url      string `gorm:"type:varchar(100)"`
 }
