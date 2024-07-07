@@ -79,8 +79,11 @@ func main() {
 
 	// Workspaces Handlers
 	workspaces.Use(customMiddleware.JWTAuthentication)
+	workspaces.GET("/", workspaceHandler.GetWorkspaces)
 	workspaces.POST("/", workspaceHandler.CreateWorkspace)
 	workspaces.GET("/:workspaceId", workspaceHandler.GetWorkspaceDescription)
+	workspaces.PUT("/:workspaceId", workspaceHandler.UpdateWorkspace)
+	workspaces.DELETE("/:workspaceId", workspaceHandler.DeleteWorkspace)
 
 	log.Println("Starting Echo server on port 8080...")
 	e.Logger.Fatal(e.Start(":8080"))
