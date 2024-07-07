@@ -19,7 +19,7 @@ func Init() {
 		// os.Getenv("DB_USER"),
 		// os.Getenv("DB_NAME"),
 		// os.Getenv("DB_PASSWORD"),
-		"postgres://postgres:password@127.0.0.1:5432/test",
+		"postgres://postgres:password@127.0.0.1:5432/gorello",
 	)
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

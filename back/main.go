@@ -55,6 +55,7 @@ func main() {
 	userRepo := gorm.NewUserRepo(db.DB)
 	workspaceRepo := gorm.NewWorkspaceRepo(db.DB)
 	userWorkspaceRoleRepo := gorm.NewUserWorkspaceRoleRepo(db.DB)
+	taskRepo := gorm.NewTaskRepo(db.DB)
 
 	userHandler := handlers.NewUserHandler(userRepo)
 	workspaceHandler := handlers.NewWorkspaceHandler(workspaceRepo, userWorkspaceRoleRepo, userRepo)
@@ -64,6 +65,7 @@ func main() {
 	auth := e.Group("/auth")
 	users := e.Group("/users")
 	workspaces := e.Group("/workspaces")
+	tasks := e.Group("/workspaces/:workspaceId/tasks")
 
 	// User auth Handlers
 	auth.POST("/signup", userHandler.Register)
@@ -84,6 +86,14 @@ func main() {
 	workspaces.GET("/:workspaceId", workspaceHandler.GetWorkspaceDescription)
 	workspaces.PUT("/:workspaceId", workspaceHandler.UpdateWorkspace)
 	workspaces.DELETE("/:workspaceId", workspaceHandler.DeleteWorkspace)
+
+	// Task Handlers
+	tasks.Use(customMiddleware.JWTAuthentication)
+	tasks.GET("/", handlers.NewTaskHandler(taskRepo).GetTasks)
+	tasks.POST("/", handlers.NewTaskHandler(taskRepo).CreateTask)
+	tasks.GET("/:taskId", handlers.NewTaskHandler(taskRepo).GetTask)
+	tasks.PUT("/:taskId", handlers.NewTaskHandler(taskRepo).UpdateTask)
+	tasks.DELETE("/:taskId", handlers.NewTaskHandler(taskRepo).DeleteTask)
 
 	log.Println("Starting Echo server on port 8080...")
 	e.Logger.Fatal(e.Start(":8080"))

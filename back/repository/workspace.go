@@ -9,5 +9,5 @@ type Workspace interface {
 	FindByID(id uint) (*models.Workspace, error)
 	FindByName(name string) (*models.Workspace, error)
 	Update(workspace *models.Workspace) error
-	Delete(name string) error
+	Delete(id uint) error
 }

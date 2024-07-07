@@ -40,7 +40,7 @@ func (repo *Workspace) Update(workspace *models.Workspace) error {
 	return result.Error
 }
 
-func (repo *Workspace) Delete(name string) error {
-	result := repo.db.Where("username = ?", name).Delete(&models.Workspace{})
+func (repo *Workspace) Delete(id uint) error {
+	result := repo.db.Where("id = ?", id).Delete(&models.Workspace{})
 	return result.Error
 }

@@ -30,8 +30,8 @@ func (repo *UserWorkspaceRole) FindByUserID(user_id uint) ([]*models.UserWorkspa
 	return userWorkspaceRoles, result.Error
 }
 
-func (repo *UserWorkspaceRole) FindByWorkspaceID(workspace_id uint) (*models.UserWorkspaceRole, error) {
-	var UserWorkspaceRole models.UserWorkspaceRole
-	result := repo.db.First(&UserWorkspaceRole, "workspace_id = ?", workspace_id)
-	return &UserWorkspaceRole, result.Error
+func (repo *UserWorkspaceRole) FindByWorkspaceID(workspace_id uint) ([]*models.UserWorkspaceRole, error) {
+	var userWorkspaceRoles []*models.UserWorkspaceRole
+	result := repo.db.Find(&userWorkspaceRoles, "workspace_id = ?", workspace_id)
+	return userWorkspaceRoles, result.Error
 }

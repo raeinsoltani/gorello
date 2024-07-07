@@ -126,7 +126,7 @@ func (h *WorkspaceHandler) GetWorkspaceDescription(c echo.Context) error {
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, err.Error())
 			}
-			return c.JSON(http.StatusOK, workspace.Description)
+			return c.JSON(http.StatusOK, workspace)
 		}
 	}
 
@@ -197,10 +197,25 @@ func (h *WorkspaceHandler) DeleteWorkspace(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, "Workspace not found")
 	}
 
-	err = h.WorkspaceRepo.Delete(workspace.Name)
+	roles, err := h.UserWorkspaceRoleRepo.FindByWorkspaceID(uint(workspaceId))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusNoContent, nil)
+	flag := false
+	for _, role := range roles {
+		if role.Role == 1 {
+			flag = true
+		}
+	}
+	if !flag {
+		return c.JSON(http.StatusForbidden, "Access denied to delete the workspace")
+	}
+
+	err = h.WorkspaceRepo.Delete(workspace.ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "Workspace record successfully")
 }
