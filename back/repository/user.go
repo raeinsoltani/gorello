@@ -17,4 +17,5 @@ type User interface {
 	FindByKeyWord(keyword string) ([]*UserSearchResultDTO, error)
 	Update(user *models.User) error
 	Delete(username string) error
+	FindAll() ([]*models.User, error)
 }

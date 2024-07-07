@@ -58,3 +58,9 @@ func (repo *User) Delete(username string) error {
 	result := repo.db.Where("username = ?", username).Delete(&models.User{})
 	return result.Error
 }
+
+func (repo *User) FindAll() ([]*models.User, error) {
+	var users []*models.User
+	result := repo.db.Find(&users)
+	return users, result.Error
+}

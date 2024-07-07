@@ -4,7 +4,7 @@ import (
 	"github.com/raeinsoltani/gorello/back/models"
 )
 
-type WorkspaceRepository interface {
+type Workspace interface {
 	Create(workspace *models.Workspace) error
 	FindByID(id uint) (*models.Workspace, error)
 	FindByName(name string) (*models.Workspace, error)

@@ -183,3 +183,23 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, user)
 }
+
+func (h *UserHandler) GetUsers(c echo.Context) error {
+	users, err := h.UserRepo.FindAll()
+	if err != nil {
+		log.Printf("error fetching users: %s", err.Error())
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	userList := make([]map[string]string, 0)
+
+	for _, user := range users {
+		userData := map[string]string{
+			"username": user.Username,
+			"email":    user.Email,
+		}
+		userList = append(userList, userData)
+	}
+
+	return c.JSON(http.StatusOK, userList)
+}
